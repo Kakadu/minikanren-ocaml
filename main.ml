@@ -117,7 +117,7 @@ let _ = test "send-more-money"(fun letters ->
      ]
   | _ -> failwith "Fresh_n failed"
 )
-         
+
 
 let diag qi qj d rng =
   let qi_d = fresh () in
@@ -192,4 +192,37 @@ let _ = test ~limit:5 "appendo" (fun q ->
     appendo a b l;
     eq q (Cons (a, b))
   ]
+)
+
+let rec reverso l out =
+  conde [
+    [eq l (List []); eq out (List [])];
+    [ fun ss ->
+        let h, t = fresh (), fresh () in
+        all [
+          eq (Cons (h, t)) l;
+          (fun ss ->
+            let aa = fresh () in
+            all [
+              appendo aa (Cons (h, List [])) out;
+              reverso t aa;
+            ] ss)
+        ] ss
+    ]
+  ]
+
+let _ = test ~limit:5 "reverso of empty" (fun q ->
+  [ reverso q (List []) ]
+)
+
+let _ = test ~limit:5 "reverso of len 1" (fun q ->
+  [ reverso q (Cons (const_int 1, List [])) ]
+)
+
+let _ = test ~limit:5 "reverso of len 2" (fun q ->
+  [ reverso q (Cons (const_int 1, (Cons (const_int 2, List [])))) ]
+)
+
+let _ = test ~limit:5 "reverso of len 3" (fun q ->
+  [ reverso q (Cons (const_int 1, (Cons (const_int 2, (Cons (const_int 3, List []))))) ) ]
 )
